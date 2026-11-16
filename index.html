@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tu escuela de español — 영상 검색</title>
+<meta name="description" content="유튜브 채널 Tu escuela de español의 영상을 주제·레벨별로 빠르게 검색하고 바로 시청하는 검색 사이트">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1116; --bg2:#151a22; --card:#1a212b; --card2:#212a36;
+  --line:#2a3542; --fg:#eef3f9; --mut:#93a2b5; --mut2:#67768a;
+  --red:#e8453c; --yel:#f5c518; --grn:#2ecc8f; --blu:#4a9fe8;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:'Noto Sans KR','Outfit',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(900px 500px at 12% -5%, rgba(232,69,60,.13), transparent 60%),
+    radial-gradient(800px 450px at 88% 0%, rgba(245,197,24,.09), transparent 60%);
+}
+.wrap{position:relative; z-index:1; max-width:1240px; margin:0 auto; padding:0 20px}
+
+/* ── header ── */
+header{padding:34px 0 18px}
+.brandrow{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+.flag{width:52px;height:52px;border-radius:14px;flex:0 0 auto;
+  background:linear-gradient(180deg,var(--red) 0 25%,var(--yel) 25% 75%,var(--red) 75% 100%);
+  box-shadow:0 6px 22px rgba(232,69,60,.3); display:grid; place-items:center;
+  font-size:24px}
+h1{font-family:'Outfit','Noto Sans KR',sans-serif; font-size:clamp(22px,3.4vw,33px);
+  font-weight:800; letter-spacing:-.02em; line-height:1.15}
+h1 em{font-style:normal; color:var(--yel)}
+.sub{color:var(--mut); font-size:14px; margin-top:3px}
+.spacer{flex:1}
+.langs{display:flex; gap:6px; background:var(--card); border:1px solid var(--line);
+  padding:5px; border-radius:11px}
+.langs button{background:none;border:0;color:var(--mut);font:inherit;font-size:13px;
+  font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;transition:.15s}
+.langs button:hover{color:var(--fg)}
+.langs button.on{background:var(--red); color:#fff}
+
+.statbar{display:flex; gap:9px; flex-wrap:wrap; margin-top:18px}
+.chip{background:var(--card); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px; font-size:12.5px; color:var(--mut); display:flex; gap:7px; align-items:center}
+.chip b{color:var(--fg); font-weight:700}
+.chip a{color:var(--blu); text-decoration:none}
+.chip a:hover{text-decoration:underline}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mut2);flex:0 0 auto}
+.dot.live{background:var(--grn); box-shadow:0 0 0 3px rgba(46,204,143,.18)}
+.dot.demo{background:var(--yel); box-shadow:0 0 0 3px rgba(245,197,24,.16)}
+
+/* ── search ── */
+.searchbox{margin-top:22px; background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line); border-radius:18px; padding:18px}
+.sfield{display:flex; align-items:center; gap:12px; background:var(--bg);
+  border:1.5px solid var(--line); border-radius:12px; padding:13px 16px; transition:.18s}
+.sfield:focus-within{border-color:var(--red); box-shadow:0 0 0 4px rgba(232,69,60,.12)}
+.sfield svg{flex:0 0 auto; stroke:var(--mut)}
+#q{flex:1; background:none; border:0; outline:0; color:var(--fg);
+  font:inherit; font-size:16px}
+#q::placeholder{color:var(--mut2)}
+.kbd{font-size:11px; color:var(--mut2); border:1px solid var(--line);
+  border-radius:5px; padding:2px 6px; font-family:ui-monospace,monospace; flex:0 0 auto}
+.clr{background:none;border:0;color:var(--mut2);cursor:pointer;font-size:18px;
+  line-height:1;padding:2px 4px;display:none}
+.clr:hover{color:var(--fg)}
+
+.filters{display:flex; gap:18px; flex-wrap:wrap; margin-top:15px}
+.fgroup{display:flex; flex-direction:column; gap:7px}
+.flabel{font-size:11px; font-weight:700; color:var(--mut2); letter-spacing:.07em;
+  text-transform:uppercase}
+.pills{display:flex; gap:6px; flex-wrap:wrap}
+.pill{background:var(--bg); border:1px solid var(--line); color:var(--mut);
+  font:inherit; font-size:12.5px; font-weight:500; padding:6px 13px;
+  border-radius:999px; cursor:pointer; transition:.15s; white-space:nowrap}
+.pill:hover{border-color:var(--mut2); color:var(--fg)}
+.pill.on{background:var(--fg); color:var(--bg); border-color:var(--fg); font-weight:700}
+.pill.on.lv-b{background:var(--grn);border-color:var(--grn);color:#04231a}
+.pill.on.lv-i{background:var(--yel);border-color:var(--yel);color:#2b2200}
+.pill.on.lv-a{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ── results ── */
+.rhead{display:flex; align-items:baseline; gap:12px; margin:30px 0 14px; flex-wrap:wrap}
+.rhead h2{font-size:17px; font-weight:700}
+.rcount{color:var(--mut); font-size:13.5px}
+.rhead .spacer{flex:1}
+.sortsel{background:var(--card); border:1px solid var(--line); color:var(--mut);
+  font:inherit; font-size:13px; padding:7px 11px; border-radius:9px; cursor:pointer}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(258px,1fr)); gap:18px}
+.vcard{background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+  overflow:hidden; cursor:pointer; transition:.18s; display:flex; flex-direction:column}
+.vcard:hover{transform:translateY(-3px); border-color:var(--mut2);
+  box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.thumb{position:relative; aspect-ratio:16/9; background:var(--bg2); overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block; transition:.3s}
+.vcard:hover .thumb img{transform:scale(1.05)}
+.dur{position:absolute; right:7px; bottom:7px; background:rgba(0,0,0,.84);
+  color:#fff; font-size:11.5px; font-weight:600; padding:2px 6px; border-radius:5px;
+  font-variant-numeric:tabular-nums}
+.play{position:absolute; inset:0; display:grid; place-items:center; opacity:0; transition:.2s;
+  background:rgba(0,0,0,.3)}
+.vcard:hover .play{opacity:1}
+.play span{width:48px;height:48px;border-radius:50%;background:var(--red);
+  display:grid;place-items:center;box-shadow:0 4px 18px rgba(0,0,0,.5)}
+.play span::after{content:'';border-left:15px solid #fff;border-top:9px solid transparent;
+  border-bottom:9px solid transparent;margin-left:4px}
+.vbody{padding:13px 14px 15px; display:flex; flex-direction:column; gap:9px; flex:1}
+.vtitle{font-size:14px; font-weight:600; line-height:1.45; display:-webkit-box;
+  -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden}
+.vmeta{display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+  font-size:11.5px; color:var(--mut2); margin-top:auto}
+.tag{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px;
+  letter-spacing:.02em}
+.tag.b{background:rgba(46,204,143,.16); color:var(--grn)}
+.tag.i{background:rgba(245,197,24,.16); color:var(--yel)}
+.tag.a{background:rgba(232,69,60,.18); color:#ff8a82}
+.tag.t{background:rgba(74,159,232,.15); color:var(--blu)}
+
+.empty{text-align:center; padding:64px 20px; color:var(--mut)}
+.empty .big{font-size:40px; margin-bottom:12px}
+.empty h3{color:var(--fg); font-size:17px; margin-bottom:7px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;
+  border:0;border-radius:10px;font:inherit;font-size:14px;font-weight:700;
+  padding:11px 20px;cursor:pointer;text-decoration:none;transition:.15s;margin-top:16px}
+.btn:hover{filter:brightness(1.1)}
+.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--mut2);filter:none}
+
+/* ── setup panel ── */
+.panel{margin-top:24px; background:var(--card); border:1px solid var(--line);
+  border-radius:16px; overflow:hidden}
+.panel>summary{padding:16px 20px; cursor:pointer; font-size:14.5px; font-weight:700;
+  display:flex; align-items:center; gap:10px; list-style:none}
+.panel>summary::-webkit-details-marker{display:none}
+.panel>summary::after{content:'▾'; margin-left:auto; color:var(--mut); transition:.2s}
+.panel[open]>summary::after{transform:rotate(180deg)}
+.panel>summary:hover{background:var(--card2)}
+.pbody{padding:4px 20px 20px; border-top:1px solid var(--line); color:var(--mut);
+  font-size:13.5px}
+.pbody h4{color:var(--fg); font-size:13.5px; margin:16px 0 7px}
+.pbody ol{margin:0 0 0 20px} .pbody ol li{margin:5px 0}
+.pbody code{background:var(--bg); border:1px solid var(--line); border-radius:5px;
+  padding:1.5px 6px; font-family:ui-monospace,monospace; font-size:12.5px; color:var(--yel)}
+.pbody a{color:var(--blu)}
+.keyrow{display:flex; gap:9px; margin-top:12px; flex-wrap:wrap}
+.keyrow input{flex:1; min-width:220px; background:var(--bg); border:1.5px solid var(--line);
+  border-radius:10px; color:var(--fg); font:inherit; font-size:14px; padding:11px 14px;
+  outline:0; font-family:ui-monospace,monospace}
+.keyrow input:focus{border-color:var(--blu)}
+.keyrow button{background:var(--blu);color:#fff;border:0;border-radius:10px;font:inherit;
+  font-size:14px;font-weight:700;padding:11px 20px;cursor:pointer}
+.keyrow button:hover{filter:brightness(1.1)}
+.note{margin-top:11px; font-size:12.5px; padding:11px 13px; border-radius:9px;
+  background:rgba(74,159,232,.08); border:1px solid rgba(74,159,232,.2); color:var(--mut)}
+.msg{margin-top:11px;font-size:13px;font-weight:600;display:none}
+.msg.ok{color:var(--grn);display:block} .msg.err{color:#ff8a82;display:block}
+
+/* ── modal ── */
+.modal{position:fixed; inset:0; z-index:100; background:rgba(5,8,12,.9);
+  backdrop-filter:blur(7px); display:none; align-items:center; justify-content:center;
+  padding:22px}
+.modal.on{display:flex}
+.mbox{width:100%; max-width:960px; background:var(--card); border:1px solid var(--line);
+  border-radius:16px; overflow:hidden; max-height:92vh; display:flex; flex-direction:column}
+.mvid{aspect-ratio:16/9; background:#000; flex:0 0 auto}
+.mvid iframe{width:100%;height:100%;border:0;display:block}
+.mfoot{padding:16px 20px; display:flex; gap:14px; align-items:flex-start; overflow:auto}
+.mfoot h3{font-size:15.5px; font-weight:700; line-height:1.45; margin-bottom:8px}
+.mclose{background:var(--card2); border:1px solid var(--line); color:var(--mut);
+  width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:18px;flex:0 0 auto;
+  display:grid;place-items:center}
+.mclose:hover{color:var(--fg)}
+.mlinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.mlinks a{font-size:12.5px;color:var(--blu);text-decoration:none;
+  border:1px solid var(--line);border-radius:8px;padding:5px 11px}
+.mlinks a:hover{border-color:var(--blu)}
+
+/* ── loader ── */
+.loading{text-align:center;padding:56px 20px;color:var(--mut)}
+.spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--red);
+  border-radius:50%;margin:0 auto 16px;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.bar{height:5px;background:var(--line);border-radius:99px;overflow:hidden;
+  max-width:280px;margin:14px auto 0}
+.bar i{display:block;height:100%;background:var(--red);width:0;transition:width .3s}
+
+footer{margin:56px 0 40px; padding-top:22px; border-top:1px solid var(--line);
+  color:var(--mut2); font-size:12.5px; text-align:center; line-height:1.9}
+footer a{color:var(--mut); text-decoration:none}
+footer a:hover{color:var(--fg)}
+
+@media(max-width:600px){
+  header{padding:22px 0 12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:13px}
+  .vtitle{font-size:12.5px} .vbody{padding:10px 11px 12px}
+  .filters{gap:13px}
+  .mfoot{padding:13px 15px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brandrow">
+    <div class="flag">🇪🇸</div>
+    <div>
+      <h1 data-i18n="title">Tu escuela de español <em>영상 검색</em></h1>
+      <div class="sub" data-i18n="sub">Elena Prieto의 스페인어 강의 영상을 주제·레벨별로 찾아 바로 시청하세요</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="langs">
+      <button data-lang="ko" class="on">한국어</button>
+      <button data-lang="es">ES</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+  <div class="statbar">
+    <div class="chip"><span class="dot" id="statusDot"></span><span id="statusText">—</span></div>
+    <div class="chip"><span data-i18n="chVideos">영상</span> <b id="nVideos">—</b></div>
+    <div class="chip"><span data-i18n="chSubs">구독자</span> <b>516K</b></div>
+    <div class="chip"><a href="https://www.youtube.com/@tuescueladeespanoles" target="_blank" rel="noopener">YouTube ↗</a></div>
+    <div class="chip"><a href="https://www.tuescueladeespanol.es" target="_blank" rel="noopener">tuescueladeespanol.es ↗</a></div>
+  </div>
+</header>
+
+<div class="searchbox">
+  <div class="sfield">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke-width="2.2"
+      stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.5-4.5"/></svg>
+    <input id="q" type="search" autocomplete="off" spellcheck="false"
+      data-i18n-ph="ph" placeholder="주제·문법·단어 검색 (예: subjuntivo, ser y estar, vocabulario…)">
+    <button class="clr" id="clr" title="clear">×</button>
+    <span class="kbd">/</span>
+  </div>
+
+  <div class="filters">
+    <div class="fgroup">
+      <div class="flabel" data-i18n="flLevel">레벨</div>
+      <div class="pills" id="fLevel">
+        <button class="pill on" data-v="">전체</button>
+        <button class="pill lv-b" data-v="basico">básico</button>
+        <button class="pill lv-i" data-v="intermedio">intermedio</button>
+        <button class="pill lv-a" data-v="avanzado">avanzado</button>
+      </div>
+    </div>
+    <div class="fgroup">
+      <div class="flabel" data-i18n="flTopic">주제</div>
+      <div class="pills" id="fTopic">
+        <button class="pill on" data-v="">전체</button>
+        <button class="pill" data-v="gramatica">문법</button>
+        <button class="pill" data-v="vocabulario">어휘</button>
+        <button class="pill" data-v="verbos">동사</button>
+        <button class="pill" data-v="fonetica">발음</button>
+        <button class="pill" data-v="expresiones">표현</button>
+        <button class="pill" data-v="cultura">문화</button>
+        <button class="pill" data-v="examen">시험</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rhead">
+  <h2 data-i18n="rhTitle">검색 결과</h2>
+  <span class="rcount" id="rcount"></span>
+  <div class="spacer"></div>
+  <button class="btn ghost" id="randomBtn" style="margin:0;padding:7px 14px;font-size:13px"
+    data-i18n="btnRandom">🎲 랜덤 영상</button>
+  <select class="sortsel" id="sort">
+    <option value="rel" data-i18n="srel">정확도순</option>
+    <option value="new" data-i18n="snew">최신순</option>
+    <option value="old" data-i18n="sold">오래된순</option>
+    <option value="view" data-i18n="sview">조회수순</option>
+  </select>
+</div>
+
+<div id="out"></div>
+
+<details class="panel" id="setup">
+  <summary>⚙️ <span data-i18n="setupTitle">전체 386편 검색 활성화 (무료 API 키 1회 설정)</span></summary>
+  <div class="pbody">
+    <p data-i18n="setupIntro">유튜브는 외부 사이트가 채널 영상 목록을 직접 읽는 것을 허용하지 않습니다. 구글이 무료로 제공하는 YouTube Data API 키를 한 번만 넣으면, 이 사이트가 채널의 전체 영상 목록을 받아 브라우저에 저장하고 그 뒤로는 즉시 검색됩니다.</p>
+
+    <h4 data-i18n="setupHow">발급 방법 (약 2분, 무료)</h4>
+    <ol>
+      <li data-i18n="s1"><a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a>에서 새 프로젝트를 만듭니다.</li>
+      <li data-i18n="s2"><a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a> 페이지에서 <b>사용</b>을 누릅니다.</li>
+      <li data-i18n="s3"><a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">사용자 인증 정보</a> → <b>사용자 인증 정보 만들기</b> → <b>API 키</b>를 선택합니다.</li>
+      <li data-i18n="s4">생성된 키(<code>AIza…</code>)를 복사해 아래에 붙여 넣습니다.</li>
+    </ol>
+
+    <div class="keyrow">
+      <input id="keyIn" type="password" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+      <button id="keySave" data-i18n="btnSave">저장하고 불러오기</button>
+      <button id="keyDel" class="btn ghost" style="margin:0" data-i18n="btnDel">삭제</button>
+    </div>
+    <div class="msg" id="keyMsg"></div>
+
+    <div class="note" data-i18n="noteSec">🔒 키는 이 브라우저의 localStorage에만 저장되며 GitHub 저장소나 외부 서버로 전송되지 않습니다. 구글 콘솔에서 키 제한을 <code>HTTP 리퍼러</code>로 이 사이트 주소만 허용하도록 설정하면 더 안전합니다. 영상 목록 전체를 받는 데 드는 일일 할당량은 약 8 단위(무료 한도 10,000 단위)입니다.</div>
+  </div>
+</details>
+
+<footer>
+  <div data-i18n="ft1">비공식 검색 도구입니다. 모든 영상의 저작권과 소유권은 채널 운영자 Elena Prieto(Tu escuela de español)에게 있으며, 재생은 유튜브 공식 플레이어를 통해 이루어집니다.</div>
+  <div style="margin-top:7px">
+    <a href="https://www.youtube.com/@tuescueladeespanoles" target="_blank" rel="noopener">채널 방문</a> ·
+    <a href="https://www.tuescueladeespanol.es" target="_blank" rel="noopener">공식 웹사이트</a> ·
+    <span data-i18n="ft2">제작: 다인에듀 (후안샘)</span>
+  </div>
+</footer>
+</div>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mvid" id="mvid"></div>
+    <div class="mfoot">
+      <div style="flex:1">
+        <h3 id="mtitle"></h3>
+        <div class="vmeta" id="mmeta"></div>
+        <div class="mlinks" id="mlinks"></div>
+      </div>
+      <button class="mclose" id="mclose">×</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ══════════ 설정 ══════════ */
+const CHANNEL_ID  = 'UCTyCyyV0eKfEoMWI_V11z6A';
+const UPLOADS_PL  = 'UU' + CHANNEL_ID.slice(2);   // 업로드 전체 재생목록
+const LS_KEY      = 'tee_api_key';
+const LS_CACHE    = 'tee_catalog_v1';
+const CACHE_TTL   = 1000*60*60*24*7;              // 7일
+
+/* ══════════ 다국어 ══════════ */
+const I18N = {
+ ko:{
+  title:'Tu escuela de español <em>영상 검색</em>',
+  sub:'Elena Prieto의 스페인어 강의 영상을 주제·레벨별로 찾아 바로 시청하세요',
+  chVideos:'영상', chSubs:'구독자',
+  ph:'주제·문법·단어 검색 (예: subjuntivo, ser y estar, vocabulario…)',
+  flLevel:'레벨', flTopic:'주제', rhTitle:'검색 결과', btnRandom:'🎲 랜덤 영상',
+  srel:'정확도순', snew:'최신순', sold:'오래된순', sview:'조회수순',
+  all:'전체', gramatica:'문법', vocabulario:'어휘', verbos:'동사', fonetica:'발음',
+  expresiones:'표현', cultura:'문화', examen:'시험', otros:'기타',
+  setupTitle:'전체 386편 검색 활성화 (무료 API 키 1회 설정)',
+  setupIntro:'유튜브는 외부 사이트가 채널 영상 목록을 직접 읽는 것을 허용하지 않습니다. 구글이 무료로 제공하는 YouTube Data API 키를 한 번만 넣으면, 이 사이트가 채널의 전체 영상 목록을 받아 브라우저에 저장하고 그 뒤로는 즉시 검색됩니다.',
+  setupHow:'발급 방법 (약 2분, 무료)',
+  s1:'<a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a>에서 새 프로젝트를 만듭니다.',
+  s2:'<a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a> 페이지에서 <b>사용</b>을 누릅니다.',
+  s3:'<a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">사용자 인증 정보</a> → <b>사용자 인증 정보 만들기</b> → <b>API 키</b>를 선택합니다.',
+  s4:'생성된 키(<code>AIza…</code>)를 복사해 아래에 붙여 넣습니다.',
+  btnSave:'저장하고 불러오기', btnDel:'삭제',
+  noteSec:'🔒 키는 이 브라우저의 localStorage에만 저장되며 GitHub 저장소나 외부 서버로 전송되지 않습니다. 구글 콘솔에서 키 제한을 <code>HTTP 리퍼러</code>로 이 사이트 주소만 허용하도록 설정하면 더 안전합니다. 영상 목록 전체를 받는 데 드는 일일 할당량은 약 8 단위(무료 한도 10,000 단위)입니다.',
+  ft1:'비공식 검색 도구입니다. 모든 영상의 저작권과 소유권은 채널 운영자 Elena Prieto(Tu escuela de español)에게 있으며, 재생은 유튜브 공식 플레이어를 통해 이루어집니다.',
+  ft2:'제작: 다인에듀 (후안샘)',
+  stLive:'전체 카탈로그 연결됨', stDemo:'맛보기 모드 — 추천 영상만',
+  loading:'채널 전체 영상 목록을 불러오는 중…', loadedN:'편 불러옴',
+  results:(n)=>`${n}편`,
+  noneTitle:'검색 결과가 없습니다',
+  noneBody:'다른 검색어를 시도하거나, 유튜브에서 채널 내 검색을 이용해 보세요.',
+  ytSearch:'유튜브에서 채널 내 검색',
+  demoTitle:'맛보기 모드로 보고 있습니다',
+  demoBody:'아래는 조회수가 가장 높은 대표 영상입니다. 386편 전체를 검색하려면 위의 ⚙️ 설정에서 무료 API 키를 한 번만 등록하세요. 키 없이도 아래 버튼으로 채널 전체를 재생하거나 유튜브에서 바로 검색할 수 있습니다.',
+  playAll:'▶ 채널 전체 재생목록 보기',
+  openYt:'유튜브에서 열기', copyLink:'링크 복사', copied:'복사됨!',
+  msgLoading:'불러오는 중…', msgOk:'편의 영상을 불러왔습니다!',
+  msgBadKey:'키가 거부되었습니다. API 사용 설정과 키 제한을 확인해 주세요.',
+  msgNoKey:'API 키를 입력해 주세요.', msgDel:'키를 삭제했습니다.',
+  views:'회', ago:'전'
+ },
+ es:{
+  title:'Tu escuela de español <em>— buscador</em>',
+  sub:'Busca y mira al instante los vídeos de Elena Prieto por tema y nivel',
+  chVideos:'vídeos', chSubs:'suscriptores',
+  ph:'Busca un tema, gramática o palabra (subjuntivo, ser y estar, vocabulario…)',
+  flLevel:'Nivel', flTopic:'Tema', rhTitle:'Resultados', btnRandom:'🎲 Vídeo al azar',
+  srel:'Relevancia', snew:'Más recientes', sold:'Más antiguos', sview:'Más vistos',
+  all:'Todos', gramatica:'Gramática', vocabulario:'Vocabulario', verbos:'Verbos',
+  fonetica:'Fonética', expresiones:'Expresiones', cultura:'Cultura', examen:'Exámenes',
+  otros:'Otros',
+  setupTitle:'Activar la búsqueda completa (clave de API gratuita, una sola vez)',
+  setupIntro:'YouTube no permite que un sitio externo lea directamente la lista de vídeos de un canal. Con una clave gratuita de YouTube Data API, este sitio descarga el catálogo completo una vez, lo guarda en tu navegador y después la búsqueda es instantánea.',
+  setupHow:'Cómo obtenerla (unos 2 minutos, gratis)',
+  s1:'Crea un proyecto en <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a>.',
+  s2:'Pulsa <b>Habilitar</b> en <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a>.',
+  s3:'Ve a <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credenciales</a> → <b>Crear credenciales</b> → <b>Clave de API</b>.',
+  s4:'Copia la clave (<code>AIza…</code>) y pégala aquí abajo.',
+  btnSave:'Guardar y cargar', btnDel:'Borrar',
+  noteSec:'🔒 La clave se guarda solo en el localStorage de este navegador; no se envía al repositorio ni a ningún servidor. Para mayor seguridad, restringe la clave por <code>referente HTTP</code> a la dirección de este sitio. Descargar el catálogo completo cuesta unas 8 unidades de la cuota diaria (el límite gratuito es de 10.000).',
+  ft1:'Buscador no oficial. Todos los vídeos pertenecen a Elena Prieto (Tu escuela de español) y se reproducen mediante el reproductor oficial de YouTube.',
+  ft2:'Hecho por Dain Edu (Juan)',
+  stLive:'Catálogo completo conectado', stDemo:'Modo demo — solo vídeos destacados',
+  loading:'Cargando el catálogo del canal…', loadedN:'vídeos cargados',
+  results:(n)=>`${n} vídeos`,
+  noneTitle:'Sin resultados',
+  noneBody:'Prueba con otras palabras o busca directamente dentro del canal en YouTube.',
+  ytSearch:'Buscar en el canal en YouTube',
+  demoTitle:'Estás en modo demo',
+  demoBody:'Abajo están los vídeos más vistos del canal. Para buscar entre los 386 vídeos, registra una clave gratuita en ⚙️ arriba. Sin clave también puedes reproducir todo el canal o buscar en YouTube con los botones de abajo.',
+  playAll:'▶ Ver la lista completa del canal',
+  openYt:'Abrir en YouTube', copyLink:'Copiar enlace', copied:'¡Copiado!',
+  msgLoading:'Cargando…', msgOk:'vídeos cargados.',
+  msgBadKey:'Clave rechazada. Revisa que la API esté habilitada y las restricciones de la clave.',
+  msgNoKey:'Introduce una clave de API.', msgDel:'Clave borrada.',
+  views:'vistas', ago:''
+ },
+ en:{
+  title:'Tu escuela de español <em>— video search</em>',
+  sub:"Search and instantly watch Elena Prieto's Spanish lessons by topic and level",
+  chVideos:'videos', chSubs:'subscribers',
+  ph:'Search a topic, grammar point or word (subjuntivo, ser y estar, vocabulario…)',
+  flLevel:'Level', flTopic:'Topic', rhTitle:'Results', btnRandom:'🎲 Random video',
+  srel:'Relevance', snew:'Newest', sold:'Oldest', sview:'Most viewed',
+  all:'All', gramatica:'Grammar', vocabulario:'Vocabulary', verbos:'Verbs',
+  fonetica:'Pronunciation', expresiones:'Expressions', cultura:'Culture', examen:'Exams',
+  otros:'Other',
+  setupTitle:'Enable full search of all 386 videos (free API key, one time)',
+  setupIntro:'YouTube does not let an outside site read a channel’s video list directly. With a free YouTube Data API key, this site downloads the full catalog once, stores it in your browser, and every search after that is instant.',
+  setupHow:'How to get one (about 2 minutes, free)',
+  s1:'Create a project in <a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">Google Cloud Console</a>.',
+  s2:'Click <b>Enable</b> on <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noopener">YouTube Data API v3</a>.',
+  s3:'Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Credentials</a> → <b>Create credentials</b> → <b>API key</b>.',
+  s4:'Copy the key (<code>AIza…</code>) and paste it below.',
+  btnSave:'Save and load', btnDel:'Delete',
+  noteSec:'🔒 The key is stored only in this browser’s localStorage — never sent to the repository or any server. For extra safety, restrict the key by <code>HTTP referrer</code> to this site’s address. Downloading the whole catalog costs about 8 units of the daily quota (free limit: 10,000).',
+  ft1:'Unofficial search tool. All videos belong to Elena Prieto (Tu escuela de español) and play through the official YouTube player.',
+  ft2:'Built by Dain Edu (Juan)',
+  stLive:'Full catalog connected', stDemo:'Demo mode — featured videos only',
+  loading:'Loading the channel catalog…', loadedN:'videos loaded',
+  results:(n)=>`${n} videos`,
+  noneTitle:'No results',
+  noneBody:'Try different words, or search inside the channel on YouTube.',
+  ytSearch:'Search this channel on YouTube',
+  demoTitle:'You are in demo mode',
+  demoBody:'Below are the channel’s most-watched videos. To search all 386, add a free API key in ⚙️ above. Without a key you can still play the whole channel or search on YouTube using the buttons below.',
+  playAll:'▶ Open the full channel playlist',
+  openYt:'Open on YouTube', copyLink:'Copy link', copied:'Copied!',
+  msgLoading:'Loading…', msgOk:'videos loaded.',
+  msgBadKey:'Key rejected. Check that the API is enabled and review the key restrictions.',
+  msgNoKey:'Please enter an API key.', msgDel:'Key deleted.',
+  views:'views', ago:' ago'
+ }
+};
+let LANG = localStorage.getItem('tee_lang') || 'ko';
+const T = k => (I18N[LANG][k] ?? I18N.ko[k] ?? k);
+
+/* ══════════ 폴백 카탈로그 (검증된 대표 영상) ══════════ */
+const SEED = [
+ {id:'ZUW4tGZEG28', title:'Aprender español: La rutina diaria (nivel básico)',
+  date:'2021-09-10', views:357340},
+ {id:'b_t5a6T0xcI', title:'Aprender español: Describir el carácter 😎😥😀 (nivel básico)',
+  date:'2022-09-29', views:141110},
+ {id:'p23Lg3Sc8Pw', title:'Aprender español: En el supermercado (nivel intermedio)',
+  date:'2021-11-08', views:122960},
+ {id:'KLL9L4f-hjo', title:'Aprender español: Estilo indirecto en presente (nivel básico)',
+  date:'2021-09-24', views:118250},
+ {id:'tj_-nVY6FIg', title:'Aprender español: Pretérito perfecto compuesto (nivel básico)',
+  date:'2024-09-25', views:77470},
+ {id:'oVfVbA4OIJ8', title:'#aprenderespañol DÍA DE LOS MUERTOS ☠️🪦',
+  date:'2026-10-29', views:1620}
+];
+
+/* ══════════ 자동 분류 ══════════ */
+const TOPIC_RULES = [
+ ['examen',      ['dele','siele','examen','certificad','prueba oficial']],
+ ['fonetica',    ['fonétic','fonetic','pronunciaci','acentuaci','tilde','ortograf',
+                  'sonido','entonaci','sílab','silab','deletre','abecedario','alfabeto']],
+ ['expresiones', ['expresion','expresión','expresiones','modismo','frases hechas',
+                  'refrán','refran','coloquial','jerga','dicho','argot','locuci']],
+ ['cultura',     ['cultura','tradici','costumbre','fiesta','navidad','semana santa',
+                  'día de los muertos','dia de los muertos','gastronom','historia de',
+                  'curiosidad','viv','españa:','vida cotidiana','ciudad','pueblo',
+                  'comunidad autónoma','flamenco','toro','reyes magos','nochevieja',
+                  'carnaval','feria','verbena','san ']],
+ ['verbos',      ['verbo','conjugaci','subjuntivo','indicativo','imperativo',
+                  'pretérito','preterito','imperfecto','indefinido','pluscuamperfecto',
+                  'condicional','futuro','gerundio','participio','perífrasis',
+                  'perifrasis','ser y estar','haber','soler','gustar','voz pasiva',
+                  'tiempos verbales','presente de']],
+ ['vocabulario', ['vocabulario','léxico','lexico','palabras','la casa','la familia',
+                  'la ropa','la comida','el cuerpo','animales','colores','números',
+                  'numeros','profesion','el tiempo','los muebles','la ciudad',
+                  'el supermercado','el restaurante','la playa','el aeropuerto',
+                  'la rutina','partes del','en el','deportes','frutas','verdura',
+                  'describir','adjetivos de']],
+ ['gramatica',   ['gramátic','gramatic','pronombre','preposici','artículo','articulo',
+                  'adjetivo','adverbio','conjunci','oracion','subordinada','comparativ',
+                  'superlativ','interrogativ','género','genero','plural','singular',
+                  'sustantivo','demostrativ','posesiv','indefinid','relativ','estilo indirecto',
+                  'por y para','muy y mucho','ya y todavía','acuerdo','negaci']]
+];
+function detectTopic(t){
+  const s = t.toLowerCase();
+  for (const [topic, kws] of TOPIC_RULES) if (kws.some(k=>s.includes(k))) return topic;
+  return 'otros';
+}
+function detectLevel(t){
+  const s = t.toLowerCase();
+  if (/nivel\s*b[aá]sico|a1|a2|principiante|beginner/.test(s)) return 'basico';
+  if (/nivel\s*intermedio|b1|b2/.test(s)) return 'intermedio';
+  if (/nivel\s*avanzado|c1|c2/.test(s)) return 'avanzado';
+  return '';
+}
+/* 검색용 정규화: 악센트 제거 */
+const norm = s => (s||'').toLowerCase()
+  .normalize('NFD').replace(/[̀-ͯ]/g,'')
+  .replace(/[^a-z0-9ñ\s]/g,' ').replace(/\s+/g,' ').trim();
+
+/* ══════════ 상태 ══════════ */
+let VIDEOS = [];
+let MODE = 'demo';           // 'demo' | 'live'
+const state = { q:'', level:'', topic:'', sort:'rel' };
+
+/* ══════════ 포맷 ══════════ */
+function fmtViews(n){
+  if (n==null) return '';
+  if (LANG==='ko'){
+    if (n>=100000000) return (n/100000000).toFixed(1).replace(/\.0$/,'')+'억회';
+    if (n>=10000)     return (n/10000).toFixed(1).replace(/\.0$/,'')+'만회';
+    if (n>=1000)      return (n/1000).toFixed(1).replace(/\.0$/,'')+'천회';
+    return n.toLocaleString('ko')+'회';
+  }
+  if (n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M '+T('views');
+  if (n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'')+'K '+T('views');
+  return n+' '+T('views');
+}
+function fmtDate(d){
+  if(!d) return '';
+  const dt = new Date(d); if (isNaN(dt)) return '';
+  const diff = (Date.now()-dt)/86400000;
+  const loc = LANG==='ko'?'ko-KR':LANG==='es'?'es-ES':'en-US';
+  if (diff < 365) {
+    const rtf = new Intl.RelativeTimeFormat(loc,{numeric:'auto'});
+    if (diff < 30) return rtf.format(-Math.max(1,Math.round(diff)),'day');
+    return rtf.format(-Math.round(diff/30),'month');
+  }
+  return dt.toLocaleDateString(loc,{year:'numeric',month:'short'});
+}
+function fmtDur(iso){
+  if(!iso) return '';
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if(!m) return '';
+  const h=+(m[1]||0), mi=+(m[2]||0), s=+(m[3]||0);
+  return h ? `${h}:${String(mi).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+           : `${mi}:${String(s).padStart(2,'0')}`;
+}
+
+/* ══════════ 검색 ══════════ */
+function score(v, terms){
+  if (!terms.length) return 1;
+  const t = v._n, w = v._w;
+  let sc = 0;
+  for (const term of terms){
+    if (!t.includes(term)) return 0;             // AND 조건
+    if (w.some(x=>x===term)) sc += 10;           // 단어 완전 일치
+    else if (w.some(x=>x.startsWith(term))) sc += 6;
+    else sc += 2;
+    if (t.indexOf(term) < 24) sc += 2;           // 제목 앞쪽 가중
+  }
+  return sc;
+}
+function search(){
+  const terms = norm(state.q).split(' ').filter(Boolean);
+  let r = VIDEOS.filter(v=>{
+    if (state.level && v.level !== state.level) return false;
+    if (state.topic && v.topic !== state.topic) return false;
+    v._s = score(v, terms);
+    return v._s > 0;
+  });
+  const by = {
+    rel : (a,b)=> (b._s-a._s) || (new Date(b.date)-new Date(a.date)),
+    new : (a,b)=> new Date(b.date)-new Date(a.date),
+    old : (a,b)=> new Date(a.date)-new Date(b.date),
+    view: (a,b)=> (b.views||0)-(a.views||0)
+  };
+  r.sort(by[state.sort]||by.rel);
+  return r;
+}
+
+/* ══════════ 렌더 ══════════ */
+const el = id => document.getElementById(id);
+const esc = s => (s||'').replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function card(v){
+  const lvTag = v.level ? `<span class="tag ${v.level[0]}">${v.level}</span>` : '';
+  const tpTag = `<span class="tag t">${esc(T(v.topic))}</span>`;
+  return `<article class="vcard" data-id="${v.id}" tabindex="0">
+    <div class="thumb">
+      <img src="https://i.ytimg.com/vi/${v.id}/mqdefault.jpg" alt="" loading="lazy"
+        onerror="this.src='https://i.ytimg.com/vi/${v.id}/hqdefault.jpg'">
+      ${v.dur?`<span class="dur">${fmtDur(v.dur)}</span>`:''}
+      <div class="play"><span></span></div>
+    </div>
+    <div class="vbody">
+      <div class="vtitle">${esc(v.title)}</div>
+      <div class="vmeta">${lvTag}${tpTag}
+        ${v.views!=null?`<span>${fmtViews(v.views)}</span>`:''}
+        ${v.date?`<span>· ${fmtDate(v.date)}</span>`:''}
+      </div>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const r = search();
+  el('rcount').textContent = T('results')(r.length);
+  const out = el('out');
+
+  if (!r.length){
+    const url = 'https://www.youtube.com/@tuescueladeespanoles/search?query='
+              + encodeURIComponent(state.q||'');
+    out.innerHTML = `<div class="empty"><div class="big">🔍</div>
+      <h3>${esc(T('noneTitle'))}</h3><p>${esc(T('noneBody'))}</p>
+      <a class="btn" href="${url}" target="_blank" rel="noopener">${esc(T('ytSearch'))} ↗</a></div>`;
+    return;
+  }
+
+  let banner = '';
+  if (MODE==='demo'){
+    banner = `<div class="note" style="margin:0 0 18px;background:rgba(245,197,24,.07);
+      border-color:rgba(245,197,24,.25)">
+      <b style="color:var(--yel)">${esc(T('demoTitle'))}</b><br>${esc(T('demoBody'))}
+      <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" id="playAllBtn" style="margin:0">${esc(T('playAll'))}</button>
+        <a class="btn ghost" style="margin:0"
+          href="https://www.youtube.com/@tuescueladeespanoles/search?query=${encodeURIComponent(state.q||'')}"
+          target="_blank" rel="noopener">${esc(T('ytSearch'))} ↗</a>
+      </div></div>`;
+  }
+  out.innerHTML = banner + `<div class="grid">${r.map(card).join('')}</div>`;
+  const pa = el('playAllBtn');
+  if (pa) pa.onclick = () => openPlaylist();
+}
+
+/* ══════════ 플레이어 ══════════ */
+function openVideo(id){
+  const v = VIDEOS.find(x=>x.id===id); if(!v) return;
+  el('mvid').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=es"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+    allowfullscreen title="${esc(v.title)}"></iframe>`;
+  el('mtitle').textContent = v.title;
+  el('mmeta').innerHTML =
+    (v.level?`<span class="tag ${v.level[0]}">${v.level}</span>`:'') +
+    `<span class="tag t">${esc(T(v.topic))}</span>` +
+    (v.views!=null?`<span>${fmtViews(v.views)}</span>`:'') +
+    (v.date?`<span>· ${fmtDate(v.date)}</span>`:'');
+  el('mlinks').innerHTML =
+    `<a href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener">${esc(T('openYt'))} ↗</a>
+     <a href="#" id="cpLink">${esc(T('copyLink'))}</a>`;
+  const cp = el('cpLink');
+  cp.onclick = e => { e.preventDefault();
+    navigator.clipboard?.writeText('https://www.youtube.com/watch?v='+id);
+    cp.textContent = T('copied'); setTimeout(()=>cp.textContent=T('copyLink'),1500); };
+  el('modal').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function openPlaylist(){
+  el('mvid').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=${UPLOADS_PL}&rel=0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+    allowfullscreen title="Tu escuela de español"></iframe>`;
+  el('mtitle').textContent = 'Tu escuela de español — ' + T('playAll').replace('▶ ','');
+  el('mmeta').innerHTML = '';
+  el('mlinks').innerHTML =
+    `<a href="https://www.youtube.com/playlist?list=${UPLOADS_PL}" target="_blank" rel="noopener">${esc(T('openYt'))} ↗</a>`;
+  el('modal').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  el('modal').classList.remove('on');
+  el('mvid').innerHTML='';
+  document.body.style.overflow='';
+}
+
+/* ══════════ API 로딩 ══════════ */
+function prep(list){
+  return list.map(v=>{
+    const o = Object.assign({}, v);
+    o.level = o.level ?? detectLevel(o.title);
+    o.topic = o.topic ?? detectTopic(o.title);
+    o._n = norm(o.title + ' ' + (o.desc||''));
+    o._w = o._n.split(' ');
+    return o;
+  });
+}
+function setMode(m, n){
+  MODE = m;
+  el('statusDot').className = 'dot ' + (m==='live'?'live':'demo');
+  el('statusText').textContent = m==='live' ? T('stLive') : T('stDemo');
+  el('nVideos').textContent = m==='live' ? n : '386';
+}
+
+async function loadCatalog(key, onProgress){
+  const items = [];
+  let page = '';
+  for (let i=0; i<12; i++){
+    const u = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+    u.search = new URLSearchParams({part:'snippet,contentDetails', playlistId:UPLOADS_PL,
+      maxResults:'50', key, ...(page?{pageToken:page}:{})});
+    const res = await fetch(u);
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const j = await res.json();
+    for (const it of (j.items||[])){
+      const sn = it.snippet||{};
+      if (!it.contentDetails?.videoId) continue;
+      items.push({ id: it.contentDetails.videoId, title: sn.title||'',
+        desc: (sn.description||'').slice(0,400),
+        date: it.contentDetails.videoPublishedAt || sn.publishedAt || '' });
+    }
+    onProgress && onProgress(items.length);
+    page = j.nextPageToken || '';
+    if (!page) break;
+  }
+  // 재생시간·조회수 보강 (50개 단위)
+  for (let i=0; i<items.length; i+=50){
+    const batch = items.slice(i,i+50);
+    const u = new URL('https://www.googleapis.com/youtube/v3/videos');
+    u.search = new URLSearchParams({part:'contentDetails,statistics',
+      id: batch.map(b=>b.id).join(','), key});
+    try{
+      const j = await (await fetch(u)).json();
+      const map = {};
+      for (const v of (j.items||[])) map[v.id] = v;
+      for (const b of batch){
+        const d = map[b.id]; if(!d) continue;
+        b.dur = d.contentDetails?.duration || '';
+        b.views = d.statistics?.viewCount != null ? +d.statistics.viewCount : null;
+      }
+    }catch(e){ /* 통계는 없어도 동작 */ }
+  }
+  return items.filter(v => v.title && v.title !== 'Private video'
+                        && v.title !== 'Deleted video');
+}
+
+async function activate(key, {silent=false}={}){
+  const msg = el('keyMsg');
+  if (!silent){ msg.className='msg ok'; msg.textContent = T('msgLoading'); }
+  el('out').innerHTML = `<div class="loading"><div class="spin"></div>
+    <div>${esc(T('loading'))}</div><div class="bar"><i id="pbar"></i></div>
+    <div id="pnum" style="margin-top:9px;font-size:13px"></div></div>`;
+  try{
+    const items = await loadCatalog(key, n=>{
+      const b=el('pbar'), p=el('pnum');
+      if(b) b.style.width = Math.min(100, n/386*100)+'%';
+      if(p) p.textContent = n + ' / ~386';
+    });
+    VIDEOS = prep(items);
+    setMode('live', VIDEOS.length);
+    localStorage.setItem(LS_KEY, key);
+    localStorage.setItem(LS_CACHE, JSON.stringify({t:Date.now(), v:items}));
+    if (!silent){
+      msg.className='msg ok';
+      msg.textContent = VIDEOS.length + (LANG==='ko'?'편의 영상을 불러왔습니다!':' '+T('msgOk'));
+      el('setup').open = false;
+    }
+    render();
+    return true;
+  }catch(e){
+    if (!silent){ msg.className='msg err'; msg.textContent = T('msgBadKey'); }
+    VIDEOS = prep(SEED); setMode('demo'); render();
+    return false;
+  }
+}
+
+/* ══════════ 다국어 적용 ══════════ */
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(n=>{
+    const v = I18N[LANG][n.dataset.i18n]; if (v!=null) n.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(n=>{
+    const v = I18N[LANG][n.dataset.i18nPh]; if (v!=null) n.placeholder = v;
+  });
+  // 필터 라벨
+  el('fLevel').firstElementChild.textContent = T('all');
+  const tp = el('fTopic').children;
+  const keys = ['all','gramatica','vocabulario','verbos','fonetica','expresiones','cultura','examen'];
+  for (let i=0;i<tp.length;i++) tp[i].textContent = T(keys[i]);
+  // 정렬
+  const so = el('sort');
+  so.options[0].text=T('srel'); so.options[1].text=T('snew');
+  so.options[2].text=T('sold'); so.options[3].text=T('sview');
+  document.querySelectorAll('.langs button').forEach(b=>
+    b.classList.toggle('on', b.dataset.lang===LANG));
+  setMode(MODE, VIDEOS.length);
+  render();
+}
+
+/* ══════════ 이벤트 ══════════ */
+let deb;
+el('q').addEventListener('input', e=>{
+  state.q = e.target.value;
+  el('clr').style.display = state.q ? 'block' : 'none';
+  clearTimeout(deb); deb = setTimeout(render, 140);
+});
+el('clr').onclick = ()=>{ el('q').value=''; state.q=''; el('clr').style.display='none'; render(); };
+el('sort').onchange = e=>{ state.sort = e.target.value; render(); };
+
+function pillGroup(id, field){
+  el(id).addEventListener('click', e=>{
+    const b = e.target.closest('.pill'); if(!b) return;
+    [...el(id).children].forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); state[field] = b.dataset.v; render();
+  });
+}
+pillGroup('fLevel','level'); pillGroup('fTopic','topic');
+
+el('out').addEventListener('click', e=>{
+  const c = e.target.closest('.vcard'); if(c) openVideo(c.dataset.id);
+});
+el('out').addEventListener('keydown', e=>{
+  if (e.key==='Enter'){ const c=e.target.closest('.vcard'); if(c) openVideo(c.dataset.id); }
+});
+el('randomBtn').onclick = ()=>{
+  const r = search(); if(!r.length) return;
+  openVideo(r[Math.floor(Math.random()*r.length)].id);
+};
+el('mclose').onclick = closeModal;
+el('modal').onclick = e=>{ if(e.target===el('modal')) closeModal(); };
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape') closeModal();
+  if (e.key==='/' && document.activeElement!==el('q')){ e.preventDefault(); el('q').focus(); }
+});
+document.querySelectorAll('.langs button').forEach(b=>{
+  b.onclick = ()=>{ LANG=b.dataset.lang; localStorage.setItem('tee_lang',LANG); applyLang(); };
+});
+el('keySave').onclick = ()=>{
+  const k = el('keyIn').value.trim();
+  const msg = el('keyMsg');
+  if (!k){ msg.className='msg err'; msg.textContent=T('msgNoKey'); return; }
+  activate(k);
+};
+el('keyDel').onclick = ()=>{
+  localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_CACHE);
+  el('keyIn').value='';
+  const msg = el('keyMsg'); msg.className='msg ok'; msg.textContent=T('msgDel');
+  VIDEOS = prep(SEED); setMode('demo'); render();
+};
+
+/* ══════════ 시작 ══════════ */
+(function init(){
+  VIDEOS = prep(SEED); setMode('demo');
+  applyLang();
+
+  const key = localStorage.getItem(LS_KEY);
+  const cached = localStorage.getItem(LS_CACHE);
+  if (cached){
+    try{
+      const c = JSON.parse(cached);
+      if (c.v?.length){
+        VIDEOS = prep(c.v); setMode('live', VIDEOS.length); render();
+        if (key && Date.now()-c.t > CACHE_TTL) activate(key,{silent:true});
+        return;
+      }
+    }catch(e){}
+  }
+  if (key) activate(key,{silent:true});
+})();
+</script>
+</body>
+</html>
